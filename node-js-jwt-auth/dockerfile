@@ -1,0 +1,16 @@
+FROM node:16
+
+# Установка рабочей директории внутри контейнера
+WORKDIR /app
+
+# Копирование зависимостей и установка их
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Копирование всех файлов приложения в контейнер
+COPY . .
+
+EXPOSE 8080
+
+# Запуск сервера
+CMD [ "npm", "run", "start"]

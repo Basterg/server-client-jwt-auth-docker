@@ -1,0 +1,44 @@
+# FROM node:16 as build
+
+# # Установка рабочей директории внутри контейнера
+# WORKDIR /app
+
+# # Копирование зависимостей и установка их
+# COPY package.json yarn.lock ./
+# RUN yarn install
+
+# # Копирование всех файлов приложения в контейнер
+# COPY . .
+
+# EXPOSE 8081
+
+# # Запуск сервера
+# CMD [ "yarn", "run", "start"]
+
+# Установка базового образа для сборки приложения
+FROM node:16 as build
+
+# Установка рабочей директории внутри контейнера
+WORKDIR /app
+
+# Копирование зависимостей и установка их
+COPY package.json yarn.lock ./
+RUN yarn install
+
+# Копирование всех файлов приложения в контейнер
+COPY . .
+
+# Сборка React приложения
+RUN yarn build
+
+# Основной контейнер с Nginx
+FROM nginx:alpine
+
+# Копирование собранных файлов React приложения в контейнер Nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Открытие порта 80 для входящих соединений
+EXPOSE 80
+
+# Запуск Nginx
+CMD ["nginx", "-g", "daemon off;"]
